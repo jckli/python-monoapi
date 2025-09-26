@@ -9,10 +9,8 @@ app = App()
 
 async def startup():
     print("Server starting up...")
+    init_routes(app)
     print("Startup complete. Ready to accept requests.")
-
-
-init_routes(app)
 
 
 if __name__ == "__main__":

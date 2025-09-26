@@ -9,5 +9,9 @@ def json_response(res, data, status_code=200):
 
 def generic_response(res, message, status_code=200):
     payload = {"status": status_code, "message": message}
+    json_response(res, payload, status_code)
 
+
+def error_response(res, message, status_code):
+    payload = {"status": status_code, "error": message}
     json_response(res, payload, status_code)
