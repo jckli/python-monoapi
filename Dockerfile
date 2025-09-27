@@ -24,7 +24,7 @@ RUN CFLAGS="-Wno-error=stringop-overflow" make linux PLATFORM=aarch64
 
 WORKDIR /build/socketify.py
 
-RUN pip install wheel && python3 setup.py bdist_wheel
+RUN pip install wheel setuptools && python3 setup.py bdist_wheel
 
 FROM ghcr.io/astral-sh/uv:python3.13-alpine
 
