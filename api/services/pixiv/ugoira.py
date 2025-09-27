@@ -2,14 +2,16 @@ from ...common.responses import error_response, json_response
 from ..pixiv.client import aapi, authenticate_pixiv
 
 
-async def get_illust_details(res, req):
+async def get_ugoira_metadata(res, req):
     res.on_aborted(lambda: res.aborted())
 
     illust_id = req.get_parameter(0)
 
     if not illust_id or not illust_id.isdigit():
         return error_response(
-            res, "A valid illustration ID is required. Example: /illust?id=12345", 400
+            res,
+            "A valid illustration ID is required. Example: /ugoira/metadata?id=12345",
+            400,
         )
 
     try:
@@ -20,16 +22,16 @@ async def get_illust_details(res, req):
                     res, "Pixiv authentication failed. Check your refresh token.", 500
                 )
 
-        json_result = await aapi.illust_detail(int(illust_id))
+        json_result = await aapi.ugoira_metadata(int(illust_id))
 
         if json_result.get("error"):
             error_message = (
                 json_result["error"].get("user_message")
-                or "Illustration not found or API error."
+                or "Ugoira metadata not found or API error."
             )
             return error_response(res, error_message, 404)
 
-        json_response(res, json_result.get("illust", {}))
+        json_response(res, json_result.get("ugoira_metadata", {}))
 
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
