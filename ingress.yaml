@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: python-monoapi-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod" 
+spec:
+  tls: 
+  - hosts:
+    - pymapi.hayasaka.moe
+    secretName: python-monoapi-tls-secret
+  rules:
+  - host: "pymapi.hayasaka.moe"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: python-monoapi-service
+            port:
+              number: 80

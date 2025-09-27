@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-monoapi-deployment
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: python-monoapi 
+  template:
+    metadata:
+      labels:
+        app: python-monoapi 
+    spec:
+      containers:
+      - name: python-monoapi 
+        image: jckli/python-monoapi:latest
+        imagePullPolicy: Always 
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - secretRef:
+            name: python-monoapi-secrets
+
