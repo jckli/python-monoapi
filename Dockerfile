@@ -4,8 +4,9 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     libuv1-dev \
+	libz-dev \
     git \
-    zlib1g-dev \
+	golang \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
