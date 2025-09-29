@@ -16,16 +16,8 @@ RUN git clone --recursive https://github.com/cirospaciari/socketify.py.git
 
 WORKDIR /build/socketify.py
 
-ARG TARGETARCH
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-      LIB_NAME="libsocketify_linux_arm64.so"; \
-    else \
-      LIB_NAME="libsocketify_linux_amd64.so"; \
-    fi && \
-    echo 'from pathlib import Path' > src/socketify/native.py && \
-    echo 'from ._socketify import ffi' >> src/socketify/native.py && \
-    echo "library_path = str(Path(__file__).parent / \"$LIB_NAME\")" >> src/socketify/native.py && \
-    echo "lib = ffi.dlopen(library_path)" >> src/socketify/native.py
+RUN sed -i "s/is_aarch64 = 'aarch64' in platform.machine().lower()/import os\\nis_arm = os.environ.get('TARGETARCH') == 'arm64'/" src/socketify/builder.py && \
+    sed -i "/is_arm = 'arm' in platform.processor().lower() or is_aarch64/d" src/socketify/builder.py
 
 WORKDIR /build/socketify.py/src/socketify/native
 
@@ -39,7 +31,8 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
 
 WORKDIR /build/socketify.py
 
-RUN pip install wheel setuptools && python3 setup.py bdist_wheel
+RUN pip install wheel setuptools && \
+    TARGETARCH=$TARGETARCH python3 setup.py bdist_wheel
 
 FROM ghcr.io/astral-sh/uv:python3.13-alpine
 
