@@ -20,9 +20,19 @@ RUN sed -i "s/'arm' in platform.processor().lower()/'arm' in platform.processor(
 
 WORKDIR /build/socketify.py/src/socketify/native
 
-RUN CFLAGS="-Wno-error=stringop-overflow" make linux PLATFORM=aarch64
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      CFLAGS="-Wno-error=stringop-overflow" make linux PLATFORM=aarch64; \
+    else \
+      make linux; \
+    fi
+
 
 WORKDIR /build/socketify.py
+
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      rm -f src/socketify/libsocketify_linux_amd64.so; \
+    fi
 
 RUN pip install wheel setuptools && python3 setup.py bdist_wheel
 
