@@ -25,7 +25,9 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: jckli/jckli-api:latest
+          tags: jckli/python-monoapi:latest
+      - name: Inspect manifest
+        run: docker buildx imagetools inspect jckli/python-monoapi:latest
 
   deploy:
     needs: build-and-push
