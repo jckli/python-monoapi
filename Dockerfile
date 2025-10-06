@@ -11,10 +11,16 @@ WORKDIR /build
 RUN git clone --recursive https://github.com/cirospaciari/socketify.py.git
 WORKDIR /build/socketify.py
 
-RUN sed -i "s/is_aarch64 = 'aarch64' in platform.machine().lower()/import os\\nis_arm = os.environ.get('TARGETARCH') == 'arm64'/" src/socketify/builder.py && \
-    sed -i "/is_arm = 'arm' in platform.processor().lower() or is_aarch64/d" src/socketify/builder.py && \
-    sed -i "s/\('arm' in platform.processor().lower()\)/(\1 or 'aarch64' in platform.machine().lower() or 'arm64' in platform.machine().lower())/" \
-        src/socketify/native.py
+RUN test -f src/socketify/native.py && \
+    sed -i "s/\('arm' in platform.processor().lower()\)/(\1 or 'aarch64' in platform.machine().lower() or 'arm64' in platform.machine().lower())/" src/socketify/native.py
+
+WORKDIR /build/socketify.py/src/socketify/native
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      CFLAGS="-Wno-error=stringop-overflow" make linux PLATFORM=aarch64; \
+    else \
+      make linux; \
+    fi
 
 WORKDIR /build/socketify.py/src/socketify/native
 RUN case "$TARGETARCH" in \
