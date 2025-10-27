@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN uv pip sync requirements.txt
+RUN uv pip sync --system requirements.txt
 
 COPY . .
 
