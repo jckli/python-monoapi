@@ -1,6 +1,6 @@
 # python-monoapi
 
-A monorepo for all my different Python APIs, built in Python. It uses [socketify.py](https://github.com/cirospaciari/socketify.py) as the main web framework.
+A monorepo for all my different Python APIs, built in Python. It uses [Robyn](https://github.com/sparckles/Robyn) as the main web framework.
 
 ## Why?
 
