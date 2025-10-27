@@ -1,8 +1,8 @@
-from ..services.pixiv.routes import pixiv_routes
+from ..services.pixiv.routes import pixiv_router
 from .index import index
 
 
 def init_routes(app):
-    app.get("/", index)
+    app.add_route(route_type="GET", endpoint="/", handler=index)
 
-    pixiv_routes(app.router("/v1/pixiv"))
+    app.include_router(pixiv_router)

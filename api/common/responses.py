@@ -1,17 +1,27 @@
 import json
 
-
-def json_response(res, data, status_code=200):
-    res.write_status(status_code)
-    res.write_header("Content-Type", "application/json")
-    res.end(json.dumps(data))
+from robyn import Response
 
 
-def generic_response(res, message, status_code=200):
+def json_response(data: dict | list, status_code: int = 200) -> Response:
+    return Response(
+        status_code=status_code,
+        description=json.dumps(data),
+        headers={"Content-Type": "application/json"},
+    )
+
+
+def generic_response(message: str, status_code: int = 200) -> Response:
+    """
+    Creates a Robyn generic message response.
+    """
     payload = {"status": status_code, "message": message}
-    json_response(res, payload, status_code)
+    return json_response(payload, status_code)
 
 
-def error_response(res, message, status_code):
+def error_response(message: str, status_code: int) -> Response:
+    """
+    Creates a Robyn error response.
+    """
     payload = {"status": status_code, "error": message}
-    json_response(res, payload, status_code)
+    return json_response(payload, status_code)
