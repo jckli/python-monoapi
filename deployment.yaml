@@ -7,10 +7,12 @@ spec:
   selector:
     matchLabels:
       app: python-monoapi 
+      region: jp
   template:
     metadata:
       labels:
         app: python-monoapi 
+        region: jp
     spec:
       containers:
       - name: python-monoapi 
