@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["uv", "run", "main:app"]
+CMD ["uv", "run", "main.py", "--log-level", "WARN"]
