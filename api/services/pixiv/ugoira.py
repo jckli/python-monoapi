@@ -14,6 +14,7 @@ async def get_ugoira_metadata_handler(illust_id):
         json_result = await aapi.ugoira_metadata(int(illust_id))
 
         if json_result.get("error"):
+            print(f"Pixiv API error: {json_result['error']}")
             error_message = (
                 json_result["error"].get("user_message")
                 or "Ugoira metadata not found or API error."

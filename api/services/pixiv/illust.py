@@ -14,6 +14,7 @@ async def get_illust_details_handler(illust_id):
         json_result = await aapi.illust_detail(int(illust_id))
 
         if json_result.get("error"):
+            print(f"Pixiv API error: {json_result['error']}")
             error_message = (
                 json_result["error"].get("user_message")
                 or "Illustration not found or API error."
