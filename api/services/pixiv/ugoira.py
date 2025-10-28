@@ -1,28 +1,44 @@
+import logging
+
 from ...common.responses import error_response, json_response
 from ..pixiv.client import aapi, authenticate_pixiv
+from ..pixiv.utils import _ensure_pixiv_auth
+
+logger = logging.getLogger(__name__)
 
 
 async def get_ugoira_metadata_handler(illust_id):
     try:
-        if not aapi.access_token:
-            await authenticate_pixiv()
-            if not aapi.access_token:
-                return error_response(
-                    "Pixiv authentication failed. Check your refresh token.", 500
-                )
+        if auth_error := await _ensure_pixiv_auth():
+            return auth_error
 
         json_result = await aapi.ugoira_metadata(int(illust_id))
 
-        if json_result.get("error"):
-            print(f"Pixiv API error: {json_result['error']}")
+        if (error := json_result.get("error")) and "invalid_grant" in error.get(
+            "message", ""
+        ):
+            logger.info("Pixiv token invalid/expired. Refreshing and retrying.")
+            await authenticate_pixiv()
+            if not aapi.access_token:
+                logger.error("Pixiv re-authentication failed. Check refresh token.")
+                return error_response("Pixiv re-authentication failed.", 500)
+
+            json_result = await aapi.ugoira_metadata(int(illust_id))
+
+        if final_error := json_result.get("error"):
+            logger.warning(f"Pixiv API error: {final_error}")
             error_message = (
-                json_result["error"].get("user_message")
+                final_error.get("user_message")
                 or "Ugoira metadata not found or API error."
             )
             return error_response(error_message, 404)
 
-        return json_response(json_result.get("ugoira_metadata", {}))
+        if metadata := json_result.get("ugoira_metadata"):
+            return json_response(metadata)
+
+        logger.error(f"Unexpected Pixiv API response format: {json_result}")
+        return error_response("Unexpected API response from Pixiv.", 500)
 
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        logger.error(f"An unexpected error occurred in handler: {e}", exc_info=True)
         return error_response("An internal server error occurred.", 500)
