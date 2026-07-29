@@ -14,39 +14,51 @@ PIXIV_BASE_URL = "https://i.pximg.net"
 PIXIV_REFERER = "https://www.pixiv.net/"
 
 
+_session = None
+
+
+def get_session():
+    global _session
+    if _session is None or _session.closed:
+        headers = {
+            "Referer": PIXIV_REFERER,
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+        }
+        _session = aiohttp.ClientSession(headers=headers)
+    return _session
+
+
 async def pixiv_proxy_handler(request):
     try:
         pixiv_path = request.path_params.get("path")
 
         url = f"{PIXIV_BASE_URL}/{pixiv_path}"
-        headers = {
-            "Referer": PIXIV_REFERER,
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-        }
-
-        async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.get(url) as stream_resp:
-                if stream_resp.status != 200:
-                    logger.warning(
-                        f"Pixiv proxy request failed for {pixiv_path} with status {stream_resp.status}"
-                    )
-                    return Response(
-                        status_code=stream_resp.status,
-                        headers={"Content-Type": "text/plain"},
-                        description=f"Error fetching from upstream: {stream_resp.status}",  # Using description
-                    )
-
-                content_type = stream_resp.headers.get(
-                    "content-type", "application/octet-stream"
+        session = get_session()
+        async with session.get(url) as stream_resp:
+            if stream_resp.status != 200:
+                logger.warning(
+                    f"Pixiv proxy request failed for {pixiv_path} with status {stream_resp.status}"
                 )
-
-                image_bytes = await stream_resp.read()
-
                 return Response(
-                    status_code=200,
-                    headers={"Content-Type": content_type},
-                    description=image_bytes,
+                    status_code=stream_resp.status,
+                    headers={"Content-Type": "text/plain"},
+                    description=f"Error fetching from upstream: {stream_resp.status}",
                 )
+
+            content_type = stream_resp.headers.get(
+                "content-type", "application/octet-stream"
+            )
+
+            image_bytes = await stream_resp.read()
+
+            return Response(
+                status_code=200,
+                headers={
+                    "Content-Type": content_type,
+                    "Cache-Control": "public, max-age=604800, immutable",
+                },
+                description=image_bytes,
+            )
 
     except Exception as e:
         logger.error(
