@@ -14,7 +14,6 @@ pixiv_router = SubRouter(__file__, prefix="/v1/pixiv")
 
 
 @pixiv_router.get("/user/:id/details")
-@pixiv_router.get("/user/details/:id")
 async def get_user_details(request):
     user_id = request.path_params.get("id")
     if not user_id.isdigit():
@@ -27,7 +26,6 @@ async def get_user_details(request):
 
 
 @pixiv_router.get("/user/:id/illusts")
-@pixiv_router.get("/user/illusts/:id")
 async def get_user_illusts(request):
     user_id = request.path_params.get("id")
     if not user_id.isdigit():
@@ -40,7 +38,6 @@ async def get_user_illusts(request):
 
 
 @pixiv_router.get("/illust/:id/details")
-@pixiv_router.get("/illust/details/:id")
 async def get_illust_details(request):
     illust_id = request.path_params.get("id")
     if not illust_id.isdigit():
