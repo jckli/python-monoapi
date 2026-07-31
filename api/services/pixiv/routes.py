@@ -1,7 +1,11 @@
 from robyn import SubRouter
 
 from ...common.responses import error_response
-from .illust import get_illust_details_handler, get_illust_rank_handler
+from .illust import (
+    get_illust_details_handler,
+    get_illust_rank_handler,
+    search_illust_handler,
+)
 from .pximg import (
     get_random_ranking_api_handler,
     get_random_ranking_image_handler,
@@ -46,6 +50,28 @@ async def get_illust_details(request):
             400,
         )
     data = await get_illust_details_handler(int(illust_id))
+    return data
+
+
+@pixiv_router.get("/illust/search")
+async def search_illust(request):
+    word = request.query_params.get("word", None)
+    if not word:
+        return error_response(
+            "Query parameter 'word' is required for search.",
+            400,
+        )
+    target = request.query_params.get("target", "partial_match_for_tags")
+    sort = request.query_params.get("sort", "date_desc")
+    offset_str = request.query_params.get("offset", None)
+    offset = int(offset_str) if offset_str and offset_str.isdigit() else None
+
+    data = await search_illust_handler(
+        word=word,
+        search_target=target,
+        sort=sort,
+        offset=offset,
+    )
     return data
 
 
