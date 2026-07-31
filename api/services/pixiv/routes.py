@@ -13,36 +13,39 @@ from .user import get_user_details_handler, get_user_illusts_handler
 pixiv_router = SubRouter(__file__, prefix="/v1/pixiv")
 
 
+@pixiv_router.get("/user/:id/details")
 @pixiv_router.get("/user/details/:id")
 async def get_user_details(request):
     user_id = request.path_params.get("id")
     if not user_id.isdigit():
         return error_response(
-            "A valid user ID is required in the URL path. Example: /user/details/123456789",
+            "A valid user ID is required in the URL path. Example: /user/123456789/details",
             400,
         )
     data = await get_user_details_handler(int(user_id))
     return data
 
 
+@pixiv_router.get("/user/:id/illusts")
 @pixiv_router.get("/user/illusts/:id")
 async def get_user_illusts(request):
     user_id = request.path_params.get("id")
     if not user_id.isdigit():
         return error_response(
-            "A valid user ID is required in the URL path. Example: /user/illusts/123456789",
+            "A valid user ID is required in the URL path. Example: /user/123456789/illusts",
             400,
         )
     data = await get_user_illusts_handler(int(user_id))
     return data
 
 
+@pixiv_router.get("/illust/:id/details")
 @pixiv_router.get("/illust/details/:id")
 async def get_illust_details(request):
     illust_id = request.path_params.get("id")
     if not illust_id.isdigit():
         return error_response(
-            "A valid illustration ID is required in the URL path. Example: /illust/details/123456789",
+            "A valid illustration ID is required in the URL path. Example: /illust/123456789/details",
             400,
         )
     data = await get_illust_details_handler(int(illust_id))
